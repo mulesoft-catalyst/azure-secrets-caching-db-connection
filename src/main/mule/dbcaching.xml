@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
+	<flow name="dbcachingFlow" doc:id="5ce64c7d-2757-4664-bebf-e30f886ac296" >
+		<scheduler doc:name="Scheduler" doc:id="d670ecc4-dc87-4e09-b66b-baba14af602a" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="10" timeUnit="SECONDS"/>
+			</scheduling-strategy>
+		</scheduler>
+		<set-variable value="#[p('pwdKey')]" doc:name="pwdKey" doc:id="654cf937-749c-43a2-b5c9-dd9ac248e93a" variableName="pwdKey" />
+		<set-variable value="#[p('userKey')]" doc:name="userKey" doc:id="524eed12-a8fb-4c2a-b13c-1ea7b86af7ad" variableName="userKey" />
+		<flow-ref doc:name="getDBCredsFromAzure" doc:id="660aaee5-29ae-4819-91b0-25b3e6ec0c1b" name="azurekeyvault-secrets-demoFlow-util"/>
+		<db:select doc:name="Select" doc:id="1409ed4d-8722-4873-bcf9-f239d8545a74" config-ref="Database_Config1">
+			<db:sql >SELECT * FROM innodb.muleCommonLogs where applicationName='mu'</db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="c7c3f1c8-d0b5-4f7f-babf-79a34bd557c8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="d8e9e522-fa0c-417d-a748-f7c6539d2c0d" message="#[(vars.dbUser default '') ++ (vars.dbPwd default '')]"/>
+	</flow>
+</mule>

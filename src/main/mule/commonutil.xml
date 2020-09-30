@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:azure-vault-property-provider="http://www.mulesoft.org/schema/mule/azure-vault-property-provider"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:mule-azure-vault-manager="http://www.mulesoft.org/schema/mule/mule-azure-vault-manager" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/mule-azure-vault-manager http://www.mulesoft.org/schema/mule/mule-azure-vault-manager/current/mule-mule-azure-vault-manager.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/azure-vault-property-provider http://www.mulesoft.org/schema/mule/azure-vault-property-provider/current/mule-azure-vault-property-provider.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+	<mule-azure-vault-manager:config name="Mule_Azure_Vault_Manager_Config" doc:name="Mule Azure Vault Manager Config" doc:id="a4ac407d-dba0-42df-aa1b-80ea9859f73c" azureApplicationClientId="${azure-client-id}" azureApplicationSecretKey="${azure-client-secret}" />
+	<global-property doc:name="Global Property" doc:id="37d4dbb6-75f7-4887-8082-7a7ce773d84a" name="azure-client-id" value=".........." />
+	<global-property doc:name="Global Property" doc:id="734684fa-6f24-4859-992c-d07aa49e78fe" name="azure-client-secret" value="..........." />
+	<global-property doc:name="Global Property" doc:id="7cb753d4-cced-4886-b20d-4ce6651bcbed" name="azure-key-vault" value="........" />
+	<ee:object-store-caching-strategy name="Caching_Strategy" doc:name="Caching Strategy" doc:id="660aaee5-29ae-4819-91b0-25b3e6ec0c1b" keyGenerationExpression="#[vars.userKey]">
+		<os:private-object-store alias="dbUserKey" maxEntries="1" entryTtl="10" expirationIntervalUnit="DAYS"/>
+	</ee:object-store-caching-strategy>
+	<ee:object-store-caching-strategy name="Caching_Strategy1" doc:name="Caching Strategy" doc:id="19b5050e-4511-4b89-98a7-8ba2b2017c32" keyGenerationExpression="#[vars.pwdKey]" >
+		<os:private-object-store alias="testpwd" entryTtl="10" expirationIntervalUnit="DAYS"/>
+	</ee:object-store-caching-strategy>
+	<flow name="azurekeyvault-secrets-demoFlow-util" doc:id="02855754-9ad4-44c3-a050-82691ab0d998" >
+		<ee:cache doc:name="Cache" doc:id="c969479e-8973-47db-9f84-891402d544d9" cachingStrategy-ref="Caching_Strategy">
+			<logger level="INFO" doc:name="Logger" doc:id="4c69c059-c38f-4eeb-97f4-d946cfac835b" message="cache1"/>
+			<mule-azure-vault-manager:get-secret doc:id="98192e97-ec02-4fd0-8065-03cea5d68932" config-ref="Mule_Azure_Vault_Manager_Config" vaultName="${vaultname}" key="${userKey}" doc:name="getUser"/>
+		</ee:cache>
+		<set-variable value="#[payload]" doc:name="dbUser" doc:id="ba9d848a-f2ca-47e4-8f13-7b392b1c1bf0" variableName="dbUser"/>
+		<logger level="INFO" doc:name="UserLogger" doc:id="49348236-5bb2-450d-80e4-0e29e5036395" message="#[&quot;-------- User Key Value is ======&gt;&gt;  &quot;++ (payload default '')]" />
+		<ee:cache doc:name="Cache" doc:id="e05a81e2-213f-404d-9743-c124498dc9b8" cachingStrategy-ref="Caching_Strategy1">
+			<logger level="INFO" doc:name="Logger" doc:id="02c93372-cf5d-47a3-b928-1b5ae07a2220" message="cache2"/>
+			<mule-azure-vault-manager:get-secret doc:name="getPwd" doc:id="1355f0ad-a372-4ff2-a8d9-325e2a4b8e2b" config-ref="Mule_Azure_Vault_Manager_Config" vaultName="${vaultname}" key="${pwdKey}"/>
+		</ee:cache>
+		<set-variable value="#[payload]" doc:name="dbPwd" doc:id="7100a1f4-8c65-4108-9898-7b123ade5d10" variableName="dbPwd" />
+		<logger level="INFO" doc:name="PwdLogger" doc:id="317bf0de-6ec7-4fa2-8353-bf16612a8422" message="#[&quot;-------- Password Key Value is ======&gt;&gt;  &quot;++ (payload default '')]" />
+	</flow>
+</mule>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd">
+	<global-property doc:name="Global Property" doc:id="a1dfeb4e-5455-4e8d-abb2-b397102a39c6" name="vaultname" value="mulemeetup-demo-keyvault" />
+	<global-property doc:name="Global Property" doc:id="ca6c295c-3d6d-45e9-a683-fee5cad497e5" name="userKey" value="dev-muleMeetupAPPDemo-appDB-userid" />
+	<global-property doc:name="Global Property" doc:id="6bad1340-edc2-4c1f-95d3-0551e39fed39" name="pwdKey" value="dev-muleMeetupAPPDemo-appDB-password"/>
+	<db:config name="Database_Config1" doc:name="Database Config" doc:id="38acd538-b8dc-4d5a-9cee-766c1e6800b2" >
+		<db:my-sql-connection host="database-1.c0tb4kdevmuu.us-east-1.rds.amazonaws.com" port="3306" user="#[vars.dbUser]" password="#[vars.dbPwd]">
+			<reconnection >
+				<reconnect />
+			</reconnection>
+		</db:my-sql-connection>
+	</db:config>
+</mule>
